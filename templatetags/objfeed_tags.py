@@ -52,7 +52,10 @@ def objfeed_for_obj(context, obj, only_own = False):
 
 @register.inclusion_tag("djangoobjfeed/comments.html", takes_context=True)
 def objfeed_comments_for_obj(context, obj):
-    context["obj_feed_entry"] = obj.feed_entry.all()[0]
+    try:
+        context["obj_feed_entry"] = obj.feed_entry.all()[0]
+    except:
+        context["obj_feed_entry"] = []
     return context
 
 
