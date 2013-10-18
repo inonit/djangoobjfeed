@@ -194,7 +194,7 @@ class ObjFeedEntry(fcdjangoutils.signalautoconnectmodel.SignalAutoConnectModel, 
     author = django.db.models.ForeignKey(django.contrib.auth.models.User, related_name="feed_postings")
 
     @classmethod
-    def on_pre_save(cls, sender, instance, **kwargs):
+    def on_pre_save(cls, sender, instance, *arg, **kwargs):
         if instance.posted_at is None:
             instance.posted_at = datetime.datetime.now()
 
