@@ -79,7 +79,11 @@ def get_objfeed(request, objfeed_id):
     feed = djangoobjfeed.models.ObjFeed.objects.get(id=objfeed_id)
     data["feed"] = feed
     data["allowed_to_post"] = feed.subclassobject.allowed_to_post(request.user)
-    data["entries"] = feed.entries.order_by("-obj_feed_entry__posted_at").all()[int(request.GET.get("offset", "0")):int(request.GET.get("limit", "10"))]
+    if request.GET.get("only_own", "false").lower() == "true":
+        entries = feed.own_entries
+    else:
+        entries = feed.entries
+    data["entries"] = entries.order_by("-obj_feed_entry__posted_at").all()[int(request.GET.get("offset", "0")):int(request.GET.get("limit", "10"))]
     x = list(data["entries"])
     
     with Timer("Render"):
