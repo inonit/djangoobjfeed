@@ -76,9 +76,9 @@ def get_feed_entry(request, feed_entry_id):
 
 def get_objfeed(request, objfeed_id):
     data = {}
-    feed = djangoobjfeed.models.ObjFeed.objects.get(id=objfeed_id)
+    feed = djangoobjfeed.models.ObjFeed.objects.get(id=objfeed_id).subclassobject
     data["feed"] = feed
-    data["allowed_to_post"] = feed.subclassobject.allowed_to_post(request.user)
+    data["allowed_to_post"] = feed.allowed_to_post(request.user)
     if request.GET.get("only_own", "false").lower() == "true":
         entries = feed.own_entries
     else:
