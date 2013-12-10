@@ -181,6 +181,9 @@ class CommentFeedEntry(fcdjangoutils.signalautoconnectmodel.SignalAutoConnectMod
 # Feed entry adaptors for objects
 
 class ObjFeedEntry(fcdjangoutils.signalautoconnectmodel.SignalAutoConnectModel, fcdjangoutils.modelhelpers.SubclasModelMixin):
+    authorcache = {}
+    authorcacheorder = []
+
     class __metaclass__(fcdjangoutils.signalautoconnectmodel.SignalAutoConnectModel.__metaclass__):
         def __init__(cls, *arg, **kw):
             fcdjangoutils.signalautoconnectmodel.SignalAutoConnectModel.__metaclass__.__init__(cls, *arg, **kw)
@@ -194,7 +197,7 @@ class ObjFeedEntry(fcdjangoutils.signalautoconnectmodel.SignalAutoConnectModel, 
     author = django.db.models.ForeignKey(django.contrib.auth.models.User, related_name="feed_postings")
 
     @classmethod
-    def on_pre_save(cls, sender, instance, **kwargs):
+    def on_pre_save(cls, sender, instance, *arg, **kwargs):
         if instance.posted_at is None:
             instance.posted_at = datetime.datetime.now()
 
@@ -289,9 +292,19 @@ class ObjFeedEntry(fcdjangoutils.signalautoconnectmodel.SignalAutoConnectModel, 
     def template(self):
         return "djangoobjfeed/render_feed_entry.%(format)s"
 
+    def get_author(self):
+        if self.author_id not in self.authorcache:
+            if len (self.authorcacheorder) > 10:
+                del self.authorcache[self.authorcacheorder[0]]
+                del self.authorcacheorder[0]
+            author = self.author
+            author = getattr(author, 'subclassobject', author)
+            self.authorcache[author.id] = author
+            self.authorcacheorder.append(author.id)
+        return self.authorcache[self.author_id]
+
     def allowed_to_post_comment(self, user):
-        author = self.author
-        author = getattr(author, 'subclassobject', author)
+        author = self.get_author()
         if hasattr(author, 'allowed_to_post_comment'):
             return author.allowed_to_post_comment(self, user)
         return True

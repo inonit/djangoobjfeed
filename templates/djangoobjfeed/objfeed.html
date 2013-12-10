@@ -8,6 +8,14 @@
 
 {% with STATIC_URL|aadd:"fcdjangoutils/js/expand.js" as url %}{% widget_addjsfile url %}{% endwith %}
 
+{% if request.GET.html == 'true' %}
+  <html>
+    <head>
+      <title>Feed</title>
+    </head>
+    <body>
+{% endif %}
+
 <div class="feed" id="feed_{{feed.id}}">
   <div class="feed_url" style="display: none;">{% url djangoobjfeed.views.get_objfeed objfeed_id=feed.id %}</div>
 
@@ -26,3 +34,8 @@
     {% render entry "html" %}
   {% endfor %}
 </div>
+
+{% if request.GET.html == 'true' %}
+    </body>
+  </html>
+{% endif %}
